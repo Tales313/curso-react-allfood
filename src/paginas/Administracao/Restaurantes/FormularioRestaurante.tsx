@@ -1,17 +1,39 @@
 import {Button, TextField} from "@mui/material";
-import {useState} from "react";
+import {useEffect, useState} from "react";
 import axios from "axios";
+import {useParams} from "react-router-dom";
+import IRestaurante from "../../../interfaces/IRestaurante";
 
 const FormularioRestaurante = () => {
+
+    const parametros = useParams()
+
+    useEffect(() => {
+        if(parametros.id) {
+            axios.get<IRestaurante>(`http://localhost:8000/api/v2/restaurantes/${parametros.id}/`)
+                .then(resposta => {
+                    setNomeRestaurante(resposta.data.nome)
+                })
+        }
+    }, [parametros])
 
     const [nomeRestaurante, setNomeRestaurante] = useState('')
 
     const aoSubmeterForm = (evento: React.FormEvent<HTMLFormElement>) => {
         evento.preventDefault()
-        axios.post('http://localhost:8000/api/v2/restaurantes/', {nome: nomeRestaurante})
-            .then(resposta => {
-                alert("Restaurante cadastrado com sucesso!")
-            })
+
+        if(parametros.id) {
+            axios.put(`http://localhost:8000/api/v2/restaurantes/${parametros.id}/`, {nome: nomeRestaurante})
+                .then(resposta => {
+                    alert("Restaurante atualizado com sucesso!")
+                })
+        } else {
+            axios.post('http://localhost:8000/api/v2/restaurantes/', {nome: nomeRestaurante})
+                .then(resposta => {
+                    alert("Restaurante cadastrado com sucesso!")
+                })
+        }
+
     }
 
     return (
